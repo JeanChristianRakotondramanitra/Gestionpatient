@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Accueil - Gestion Patients{% endblock %}
+
+{% block content %}
+    <div class="accueil-content">
+        <p>II Kor4:5 "Fa tsy ny tenanay no torinay, Fa Kristy Jesosy Tompo, ary izahay mpanomponareo noho ny amin'i Jesosy."</p>
+        <h1>Bienvenue dans la gestion de patients</h1>
+        <img src="{% static 'images/hvmm.png' %}" alt="HVMM" class="hvmm-image">
+        {% if not request.session.user_login %}
+        <a href="{% url 'login' %}">Se connecter</a>
+        {% endif %}
+    </div>
+{% endblock %}

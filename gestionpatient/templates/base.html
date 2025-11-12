@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{% block title %}Gestion Patients{% endblock %}</title>
+    {% load static %}
+    <link rel="icon" href="{% static 'images/logo.png' %}" type="image/png">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <style>
+        #menuFichier, #menuReception {
+            display: none;
+        }
+    </style>
+    <script>
+        // Réactiver le bouton de connexion après déconnexion
+        document.addEventListener('DOMContentLoaded', function() {
+            if (window.location.pathname === '/login/') {
+                document.getElementById('loginBtn').disabled = false;
+                document.getElementById('loginBtn').textContent = 'Se connecter';
+            }
+        });
+
+        function toggleMenu(menuId) {
+            const menu = document.getElementById(menuId);
+            if (menu.style.display === 'block') {
+                menu.style.display = 'none';
+            } else {
+                menu.style.display = 'block';
+            }
+        }
+
+        // Fermer les menus si on clique ailleurs
+        document.addEventListener('click', function(event) {
+            const menus = document.querySelectorAll('.custom-dropdown-menu');
+            menus.forEach(menu => {
+                if (!menu.contains(event.target) && !event.target.closest('.dropdown button')) {
+                    menu.style.display = 'none';
+                }
+            });
+        });
+    </script>
+</head>
+<body>
+    <header class="app-header">
+        <div class="header-left">
+            <img src="{% static 'images/logo.png' %}" alt="Logo" class="logo">
+            <span class="app-title">Gestion de Patients</span>
+        </div>
+
+        {% if request.session.user_login %}
+            <div class="user-info-block">
+                Utilisateur: {{ request.session.user_nom }} {{ request.session.user_prenom }} <a href="#" data-bs-toggle="modal" data-bs-target="#aproposModal">À propos</a> <a href="{% url 'logout' %}">Déconnexion</a>
+            </div>
+        {% endif %}
+    </header>
+
+    {% if request.session.user_login %}
+        <nav class="main-menu-nav">
+
+            <div class="d-flex justify-content-center mt-4 gap-3 flex-wrap">
+                {% if request.session.user_admin == '1' %}
+                <div class="dropdown">
+                    <!-- Le bouton qui déclenche le menu, renommé "Fichier" -->
+                    <button class="btn btn-outline-secondary py-2 px-4 shadow-sm"
+                    type="button"
+                    id="dropdownMenuButtonFichier"
+                    onclick="toggleMenu('menuFichier')">
+
+                    <!-- Icône de Dossier et Texte du Bouton -->
+                     <i class="bi bi-folder-fill me-2"></i> Fichier
+                    </button>
+
+                    <!-- Le CONTENU du menu déroulant (liste des sous-menus) -->
+                    <ul class="custom-dropdown-menu" id="menuFichier" aria-labelledby="dropdownMenuButtonFichier">
+                        <!-- Option 1 : Personnel -->
+                        <li>
+                            <a class="dropdown-item" href="#">
+                                <i class="bi bi-calendar-event me-2"></i> Personnel
+                            </a>
+                        </li>
+                        <!-- Option 2 : Consultation -->
+                        <li>
+                            <a class="dropdown-item" href="{% url 'liste_consultations' %}">
+                                <i class="bi bi-calendar-event me-2"></i> Consultation
+                            </a>
+                        </li>
+                        <!-- Option 3 : Petite Chirurgie -->
+                        <li>
+                            <a class="dropdown-item" href="{% url 'liste_petite_chirurgie' %}">
+                                <i class="bi bi-scissors me-2"></i> Petite Chirurgie
+                            </a>
+                        </li>
+                        <!-- Séparateur 
+                        <li><hr class="dropdown-divider"></li>-->
+                        <!-- Option 3 : Médicament -->
+                        <li>
+                            <a class="dropdown-item" href="#">
+                                <i class="bi bi-capsule me-2"></i> Médicament
+                            </a>
+                        </li>
+                        <!-- Option 4 : Hospitalisation -->
+                        <li>
+                            <a class="dropdown-item" href="{% url 'liste_hospitalisation' %}">
+                                <i class="bi bi-capsule me-2"></i> Hospitalisation
+                            </a>
+                        </li>
+                        <!-- Option 5 : Ophtalmo -->
+                        <li>
+                            <a class="dropdown-item" href="{% url 'liste_ophtalmologie' %}">
+                                <i class="bi bi-capsule me-2"></i> Ophtalmo
+                            </a>
+                        </li>
+                        <!-- Option 6 : Dentaire -->
+                        <li>
+                            <a class="dropdown-item" href="{% url 'liste_dentaire' %}">
+                                <i class="bi bi-capsule me-2"></i> Dentaire
+                            </a>
+                        </li>
+                        <!-- Option 7 : Laboratoire -->
+                        <li>
+                            <a class="dropdown-item" href="{% url 'liste_laboratoire' %}">
+                                <i class="bi bi-capsule me-2"></i> Laboratoire
+                            </a>
+                        </li>
+                        <!-- Option 8 : Opération -->
+                        <li>
+                            <a class="dropdown-item" href="{% url 'liste_operation' %}">
+                                <i class="bi bi-capsule me-2"></i> Opération
+                            </a>
+                        </li>
+                        <!-- Option 9 : Outil consommable -->
+                        <li>
+                            <a class="dropdown-item" href="#">
+                                <i class="bi bi-capsule me-2"></i> Outil Consommable
+                            </a>
+                        </li>
+                        <!-- Option 10 : Xrays -->
+                        <li>
+                            <a class="dropdown-item" href="{% url 'liste_xrays' %}">
+                                <i class="bi bi-capsule me-2"></i> Xrays
+                            </a>
+                        </li>
+                        <!-- Option 11 : Santé communautaire -->
+                        <li>
+                            <a class="dropdown-item" href="{% url 'liste_sante_communautaire' %}">
+                                <i class="bi bi-capsule me-2"></i> Santé communautaire
+                            </a>
+                        </li>
+                        <!-- Option 12 : Numérotation dossier -->
+                        <li>
+                            <a class="dropdown-item" href="#">
+                                <i class="bi bi-capsule me-2"></i> Numérotation dossier
+                            </a>
+                        </li>
+                        <!-- Option 13 : Numérotation Patient - Facture - Paiement -->
+                        <li>
+                            <a class="dropdown-item" href="#">
+                                <i class="bi bi-capsule me-2"></i> Numérotation Patient - Facture - Paiement
+                            </a>
+                        </li>
+                        <!-- Option 14 : Mise à jour montant facture -->
+                        <li>
+                            <a class="dropdown-item" href="#">
+                                <i class="bi bi-capsule me-2"></i> Mise à jour montant facture
+                            </a>
+                        </li>
+                        <!-- Option 15 : Remboursement facture -->
+                        <li>
+                            <a class="dropdown-item" href="#">Remboursement facture
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+                {% endif %}
+                {% if request.session.user_admin == '1' or request.session.user_admin == '2' %}
+                        <div class="dropdown">
+                            <button class="btn btn-outline-primary py-2 px-5 shadow-sm" type="button" id="dropdownMenuButton1" onclick="toggleMenu('menuReception')">
+                                <i class="bi bi-folder-fill me-2"></i> Réception
+                            </button>
+                            <ul class="custom-dropdown-menu" id="menuReception" aria-labelledby="dropdownMenuButton1">
+                                <li><a class="dropdown-item" href="{% url 'liste_patients' %}">Patient</a></li>
+                                <li><a class="dropdown-item" href="#">Dossier</a></li>
+                            </ul>
+                        </div>
+                        <a href=# class="btn btn-outline-success py-2 px-5 shadow-sm">
+                            <i class="bi bi-calculator-fill me-2"></i> Facturation
+                        </a>
+                {% endif %}
+                {% if request.session.user_admin == '1' or request.session.user_admin == '3' %}
+                        <a href="#" class="btn btn-outline-warning py-2 px-5 shadow-sm">
+                            <i class="bi bi-wallet-fill me-2"></i> Paiement
+                        </a>
+                {% endif %}
+                {% if request.session.user_admin == '1' or request.session.user_admin == '2' or request.session.user_admin == '3' %}
+                        <a href=# class="btn btn-outline-success py-2 px-5 shadow-sm">
+                            <i class="bi bi-calculator-fill me-2"></i> Edition
+                        </a>
+                {% endif %}
+                    </div>
+
+
+           <!--<ul>
+                <li><a href="#" class="btn btn-lg btn-outline-primary w-100 py-3 shadow-sm">Réception</a></li>
+                <li><a href="#" class="btn btn-lg btn-outline-primary w-100 py-3 shadow-sm">Facturation</a></li>
+                <li><a href="#" class="btn btn-lg btn-outline-primary w-100 py-3 shadow-sm">Paiement</a></li>
+            </ul> -->
+        </nav>
+    {% endif %}
+
+    <main>
+        {% block content %}
+        {% endblock %}
+    </main>
+
+    <footer>
+        <p>&copy; 2025 Gestion Patient, developpé par Rakotondramanitra Jean Christian</p>
+    </footer>
+
+    <!-- Modal À propos -->
+    <div class="modal fade" id="aproposModal" tabindex="-1" aria-labelledby="aproposModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="aproposModalLabel">À propos</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p><strong>Application Gestion des Patients</strong></p>
+                    <p>Hopital Vaovao Mahafaly</p>
+                    <p>Vers 2025</p>
+                    <p>Developpé par Rakotondramanitra Jean Christian</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

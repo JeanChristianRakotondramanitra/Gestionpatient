@@ -1,0 +1,53 @@
+/* Fichier : gestion_patient/static/css/style.css */
+
+body {
+    background: linear-gradient(to bottom, #f0f8ff, #87ceeb), url('{% static "images/hvmm.png" %}') no-repeat center center fixed; /* Dégradé bleu ciel avec image HVMM en arrière-plan */
+    background-size: cover;
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+header {
+    display: flex;
+    align-items: center;
+    padding: 20px;
+    background-color: rgba(255, 255, 255, 0.8);
+}
+
+.logo {
+    width: 30px;
+    height: 30px;
+    margin-right: 20px;
+}
+
+main {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.accueil-content {
+    text-align: center;
+    max-width: 600px;
+    padding: 20px;
+    background-color: rgba(255, 255, 255, 0.9);
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.hvmm-image {
+    max-width: 100%;
+    height: auto;
+    margin: 20px 0;
+}
+
+footer {
+    text-align: center;
+    padding: 10px;
+    background-color: rgba(255, 255, 255, 0.8);
+}

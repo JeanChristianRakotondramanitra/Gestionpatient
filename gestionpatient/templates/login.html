@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Connexion - Gestion Patients{% endblock %}
+
+{% block content %}
+    <div class="login-content">
+        <h1>Connexion</h1>
+        <form method="post" id="loginForm">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="username">Nom d'utilisateur :</label>
+                <input type="text" id="username" name="username" required>
+            </div>
+            <div class="form-group">
+                <label for="password">Mot de passe :</label>
+                <input type="password" id="password" name="password" required>
+            </div>
+            <button type="submit" id="loginBtn" class="btn btn-primary">Se connecter</button>
+        </form>
+        {% if messages %}
+            {% for message in messages %}
+                <p class="error">{{ message }}</p>
+            {% endfor %}
+        {% endif %}
+    </div>
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', function() {
+            document.getElementById('loginBtn').disabled = true;
+            document.getElementById('loginBtn').textContent = 'Connexion en cours...';
+        });
+    </script>
+
+    {% if request.session.user_login %}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var btn = document.getElementById('loginBtn');
+            if (btn) {
+                btn.disabled = true;
+                btn.textContent = 'Déjà connecté';
+            }
+        });
+    </script>
+    {% endif %}
+{% endblock %}

@@ -1,0 +1,207 @@
+/* Fichier : gestion_patient/static/css/style.css */
+
+body {
+    background: linear-gradient(to bottom, #f0f8ff, #87ceeb), url('{% static "images/hvmm.png" %}') no-repeat center center fixed; /* Dégradé bleu ciel avec image HVMM en arrière-plan */
+    background-size: cover;
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* 1. Mise en page de l'en-tête */
+.app-header {
+    display: flex; /* Active Flexbox */
+    justify-content: space-between; /* Écarte les deux blocs au maximum */
+    align-items: center; /* Aligne verticalement les éléments au centre */
+    padding: 10px 20px;
+    background-color: #f0f8ff; /* Exemple de couleur de fond d'en-tête */
+    border-bottom: 1px solid #ccc; /* Ligne de séparation */
+}
+
+.header-left {
+    display: flex;
+    align-items: center;
+}
+
+.logo {
+    width: 30px;
+    height: 30px;
+    margin-right: 10px;
+}
+
+/* 2. Style des informations utilisateur (pour qu'elles soient lisibles) */
+.user-info-block {
+    /* Style optionnel pour l'alignement interne si l'on veut les liens sur une ligne */
+    white-space: nowrap;
+    font-size: 0.9em;
+}
+
+.app-title {
+    font-size: 1.5em;
+    font-weight: bold;
+}
+
+/* 1. Conteneur du Menu */
+.main-menu-nav {
+    margin-top: 20px; /* Espace sous l'en-tête */
+    /* Centrage du menu sur la page (facultatif) */
+    text-align: center;
+}
+
+/* 2. La Liste (<ul>) */
+.main-menu-nav ul {
+    list-style: none; /* Supprime les points (puces) */
+    padding: 0;
+    margin: 0;
+    display: flex; /* Aligne les éléments LI horizontalement */
+    justify-content: center; /* Centre les éléments dans la barre de navigation */
+}
+
+/* 3. Les Éléments de Liste (<li>) */
+.main-menu-nav li {
+    margin: 0 20px; /* Ajoute un espace entre chaque lien (Réception, Facturation, Paiement) */
+}
+
+/* 4. Les Liens (<a>) - Apparence de Bouton */
+.main-menu-nav li a {
+    text-decoration: none; /* Supprime le soulignement */
+    color: #007bff; /* Couleur du texte (bleu) */
+    font-weight: bold;
+    /* Ajoutez le style de bouton si vous le souhaitez (padding, border, background) */
+    padding: 5px 10px;
+    border: 1px solid transparent;
+    transition: all 0.2s;
+}
+
+.main-menu-nav li a:hover {
+    color: #0056b3;
+    border-color: #ccc;
+    border-radius: 3px;
+}
+
+main {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.accueil-content {
+    text-align: center;
+    max-width: 600px;
+    padding: 20px;
+    background-color: rgba(255, 255, 255, 0.9);
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.login-content {
+    max-width: 400px;
+    margin: 0 auto;
+    background-color: rgba(255, 255, 255, 0.9);
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    text-align: center;
+}
+
+.login-content h1 {
+    text-align: center;
+}
+
+.form-group {
+    margin-bottom: 20px; /* Increased spacing between fields */
+    text-align: left; /* Align labels and inputs to the left within centered container */
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+}
+
+button {
+    background-color: #4682B4;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    display: block;
+    margin: 0 auto; /* Center the button */
+}
+
+button:hover {
+    background-color: #357ABD;
+}
+
+.error {
+    color: red;
+    margin-top: 10px;
+}
+
+.hvmm-image {
+    max-width: 100%;
+    height: auto;
+    margin: 20px 0;
+}
+
+footer {
+    text-align: center;
+    padding: 10px;
+    background-color: rgba(255, 255, 255, 0.8);
+}
+
+/* Styles pour le dropdown menu de Réception et Fichier */
+.dropdown {
+    position: relative;
+}
+
+.custom-dropdown-menu {
+    background-color: #f3efef;
+    border: 1px solid #cccccc;
+    border-radius: 4px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    min-width: 150px;
+    position: absolute;
+    display: none;
+    z-index: 1000;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+#menuFichier {
+    left: 0;
+    right: auto;
+    top: 100%;
+}
+
+.dropdown-item {
+    color: #131212; /* Couleur noir pour les sous-menus */
+    padding: 5px 10px;
+    text-decoration: none;
+    display: block;
+    font-weight: normal;
+    background-color: transparent;
+    border: none;
+    text-align: left;
+    font-size: 0.8em; /* Agrandissement de la taille de police */
+}
+
+.dropdown-item:hover {
+    background-color: #f8f9fa;
+    color: #000000; /* Couleur noire pour le texte au survol */
+}
+
+
