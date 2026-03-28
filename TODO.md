@@ -1,4 +1,10 @@
-# TODO: Modify Patient List Window
+# TODO: Add Sub-menus to "Edition" Menu
 
-- [x] Update `gestionpatient/templates/liste_patients.html` to reorder columns: Numéro Patient first, then Catégorie, remove ID Patient column
-- [x] Ensure the table displays the correct data in the new order
+## Steps to Complete
+- [x] Edit `gestionpatient/templates/base.html` to add the following sub-menus under the "Edition" menu:
+  - Recettes
+  - Registres de recettes
+  - Edition des factures
+  - Registres de facturation
+  - Editions des impayés
+  - Use href="#" for all links as views/URLs are not yet implemented.

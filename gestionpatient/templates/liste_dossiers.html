@@ -1,0 +1,274 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Liste des Dossiers - Gestion Patients{% endblock %}
+
+{% block content %}
+<div class="container" style="margin-top: 1.5cm;">
+    <h2 class="mb-4">Liste des Dossiers</h2>
+
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <form method="get" class="d-flex">
+            <input type="text" class="form-control me-2" name="numdossier" placeholder="Rechercher par numéro de dossier" value="{{ numdossier }}">
+            <button type="submit" class="btn btn-outline-primary">Rechercher</button>
+        </form>
+        <div class="d-flex gap-2">
+            <a href="{% url 'create_dossier' %}" class="btn btn-success">Ajouter</a>
+            <button type="button" class="btn btn-primary" id="editBtn" disabled>Modifier</button>
+        </div>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-striped table-hover">
+            <thead class="table-dark">
+                <tr>
+                    <th>Numéro de Dossier</th>
+                    <th>Date de Consultation</th>
+                    <th>Num Patient</th>
+                    <th>Nom Patient</th>
+                    <th>Num Porte</th>
+                    <th>Type de Consultation</th>
+                    <th>Date Entrée</th>
+                    <th>Date Sortie</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for dossier in page_obj %}
+                <tr>
+                    <td>
+                        <input type="radio" name="selected_dossier" value="{{ dossier.numdossier }}" class="dossier-radio">
+                        {{ dossier.numdossier }}
+                    </td>
+                    <td>{{ dossier.dateconsultation|date:"d/m/Y"|default:"-" }}</td>
+                    <td>{{ dossier.idpatient.numpatient|default:"-" }}</td>
+                    <td>{{ dossier.idpatient.nompatient }} {{ dossier.idpatient.prenompatient }}</td>
+                    <td>{{ dossier.numporte|default:"-" }}</td>
+                    <td>{{ dossier.idtype.type_consultation|default:"-" }}</td>
+                    <td>{{ dossier.date_entree|date:"d/m/Y"|default:"-" }}</td>
+                    <td>{{ dossier.date_sortie|date:"d/m/Y"|default:"-" }}</td>
+                    <td>
+                        <button class="btn btn-sm btn-outline-primary">Modifier</button>
+                        <button class="btn btn-sm btn-outline-danger">Supprimer</button>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="9" class="text-center">Aucun dossier trouvé.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    {% if page_obj.has_other_pages %}
+    <nav aria-label="Pagination des dossiers">
+        <ul class="pagination justify-content-center">
+            {% if page_obj.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if numdossier %}&numdossier={{ numdossier }}{% endif %}">Précédent</a>
+                </li>
+            {% endif %}
+
+            {% for num in page_obj.paginator.page_range %}
+                {% if page_obj.number == num %}
+                    <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+                {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ num }}{% if numdossier %}&numdossier={{ numdossier }}{% endif %}">{{ num }}</a>
+                    </li>
+                {% endif %}
+            {% endfor %}
+
+            {% if page_obj.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if numdossier %}&numdossier={{ numdossier }}{% endif %}">Suivant</a>
+                </li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
+
+    <div class="mt-4">
+        <a href="{% url 'accueil' %}" class="btn btn-secondary">Retour à l'accueil</a>
+    </div>
+</div>
+
+<!-- Modal d'édition -->
+<div class="modal fade" id="editDossierModal" tabindex="-1" aria-labelledby="editDossierModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content" style="background: linear-gradient(to bottom, #cce7ff, #99d6ff);">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editDossierModalLabel">Modifier le Dossier</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="editDossierForm">
+                    {% csrf_token %}
+                    <input type="hidden" id="editNumdossier" name="numdossier">
+
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label for="editNumdossierDisplay" class="form-label">Numéro de Dossier</label>
+                            <input type="text" class="form-control" id="editNumdossierDisplay" name="numdossier_display" readonly>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label for="editDateconsultation" class="form-label">Date de Consultation <span class="text-danger">*</span></label>
+                            <input type="date" class="form-control" id="editDateconsultation" name="dateconsultation" required>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label for="editIdpatient" class="form-label">Patient <span class="text-danger">*</span></label>
+                            <select class="form-select" id="editIdpatient" name="idpatient" required>
+                                <option value="">Sélectionner un patient</option>
+                                {% for patient in patients %}
+                                    <option value="{{ patient.idpatient }}">{{ patient.numpatient }} - {{ patient.nompatient }} {{ patient.prenompatient }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label for="editIdtype" class="form-label">Type de Consultation <span class="text-danger">*</span></label>
+                            <select class="form-select" id="editIdtype" name="idtype" required>
+                                <option value="">Sélectionner un type</option>
+                                {% for type_consultation in types_consultation %}
+                                    <option value="{{ type_consultation.idtype }}">{{ type_consultation.type_consultation }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label for="editNumporte" class="form-label">Numéro de Porte</label>
+                            <input type="text" class="form-control" id="editNumporte" name="numporte">
+                        </div>
+
+                        <div class="col-md-6">
+                            <label for="editDateEntree" class="form-label">Date d'Entrée</label>
+                            <input type="date" class="form-control" id="editDateEntree" name="date_entree">
+                        </div>
+
+                        <div class="col-md-6">
+                            <label for="editDateSortie" class="form-label">Date de Sortie</label>
+                            <input type="date" class="form-control" id="editDateSortie" name="date_sortie">
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                <button type="button" class="btn btn-primary" id="saveEditDossierBtn">Valider</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const editBtn = document.getElementById('editBtn');
+    const editDossierModal = new bootstrap.Modal(document.getElementById('editDossierModal'));
+    const saveEditDossierBtn = document.getElementById('saveEditDossierBtn');
+    const dossierRadios = document.querySelectorAll('.dossier-radio');
+
+    // Activer/désactiver le bouton Modifier selon la sélection
+    dossierRadios.forEach(radio => {
+        radio.addEventListener('change', function() {
+            editBtn.disabled = false;
+        });
+    });
+
+    // Désactiver le bouton si aucune sélection
+    function updateEditButton() {
+        const selectedRadio = document.querySelector('input[name="selected_dossier"]:checked');
+        editBtn.disabled = !selectedRadio;
+    }
+
+    // Initialiser l'état du bouton
+    updateEditButton();
+
+    // Mettre à jour le bouton lors des changements
+    document.addEventListener('change', updateEditButton);
+
+    // Ouvrir le modal d'édition
+    editBtn.addEventListener('click', function() {
+        const selectedRadio = document.querySelector('input[name="selected_dossier"]:checked');
+        if (!selectedRadio) {
+            alert('Veuillez sélectionner un dossier.');
+            return;
+        }
+
+        const numdossier = selectedRadio.value;
+
+        // Charger les données du dossier
+        fetch(`{% url 'get_dossier_data' %}?numdossier=${numdossier}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    alert(data.error);
+                    return;
+                }
+
+                // Remplir le formulaire
+                document.getElementById('editNumdossier').value = data.numdossier;
+                document.getElementById('editNumdossierDisplay').value = data.numdossier;
+                document.getElementById('editDateconsultation').value = data.dateconsultation;
+                document.getElementById('editIdpatient').value = data.idpatient;
+                document.getElementById('editIdtype').value = data.idtype;
+                document.getElementById('editNumporte').value = data.numporte || '';
+                document.getElementById('editDateEntree').value = data.date_entree || '';
+                document.getElementById('editDateSortie').value = data.date_sortie || '';
+
+                editDossierModal.show();
+            })
+            .catch(error => {
+                console.error('Erreur:', error);
+                alert('Erreur lors du chargement des données.');
+            });
+    });
+
+    // Sauvegarder les modifications
+    saveEditDossierBtn.addEventListener('click', function(event) {
+        event.preventDefault();
+
+        const form = document.getElementById('editDossierForm');
+        const formData = new FormData(form);
+
+        fetch('{% url 'edit_dossier' %}', {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert(data.success);
+                editDossierModal.hide();
+                location.reload();
+            } else {
+                alert(data.error);
+            }
+        })
+        .catch(error => {
+            console.error('Erreur:', error);
+            alert('Erreur lors de la sauvegarde.');
+        });
+    });
+
+    // Empêcher la soumission du formulaire lors de l'appui sur Enter
+    document.getElementById('editDossierForm').addEventListener('submit', function(event) {
+        event.preventDefault();
+    });
+});
+</script>
+
+{% endblock %}

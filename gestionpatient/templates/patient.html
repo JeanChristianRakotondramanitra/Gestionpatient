@@ -1,0 +1,225 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Créer un Patient - Gestion Patients{% endblock %}
+
+{% block content %}
+<div class="container" style="margin-top: 1.5cm; background: linear-gradient(to bottom, #cce7ff, #99d6ff); border-radius: 10px; padding: 20px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);">
+    <div class="row justify-content-center">
+        <div class="col-lg-8 col-xl-6">
+            <div class="card shadow" style="background: linear-gradient(to bottom, #cce7ff, #99d6ff);">
+                <div class="card-header bg-primary text-white text-center">
+                    <h4 class="mb-0">Créer un Nouveau Patient</h4>
+                </div>
+                <div class="card-body">
+                    {% if messages %}
+                        {% for message in messages %}
+                            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                                {{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+
+                    <form method="post" class="row g-3" id="patientForm">
+                        {% csrf_token %}
+
+                        <div class="col-md-6">
+                            <label for="numpatient" class="form-label">Numéro Patient</label>
+                            <input type="text" class="form-control" id="numpatient" name="numpatient" value="{{ numpatient_preview }}" readonly>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label for="nompatient" class="form-label">Nom <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="nompatient" name="nompatient" required>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label for="prenompatient" class="form-label">Prénom <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="prenompatient" name="prenompatient" required>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label for="sexe_patient" class="form-label">Sexe <span class="text-danger">*</span></label>
+                            <select class="form-select" id="sexe_patient" name="sexe_patient" required>
+                                <option value="">Sélectionner le sexe</option>
+                                <option value="M">Masculin</option>
+                                <option value="F">Féminin</option>
+                            </select>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label for="categorie" class="form-label">Type de Patient <span class="text-danger">*</span></label>
+                            <select class="form-select" id="categorie" name="categorie" required>
+                                <option value="">Sélectionner un type</option>
+                                {% for categorie in categories %}
+                                    <option value="{{ categorie.id }}">{{ categorie.nom_categorie }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label for="nummatricule" class="form-label">Numéro Matricule</label>
+                            <select class="form-select" id="nummatricule" name="nummatricule" disabled>
+                                <option value="">Sélectionner un numéro matricule</option>
+                                {% for personnel in personnels %}
+                                    <option value="{{ personnel.nummle }}">{{ personnel.nummle }} - {{ personnel.nompersonnel }} {{ personnel.prenompersonnel }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label for="coderegion" class="form-label">Région <span class="text-danger">*</span></label>
+                            <select class="form-select" id="coderegion" name="coderegion" required>
+                                <option value="">Sélectionner une région</option>
+                                {% for region in regions %}
+                                    <option value="{{ region.coderegion }}">{{ region.region }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label for="codedistrict" class="form-label">District</label>
+                            <select class="form-select" id="codedistrict" name="codedistrict">
+                                <option value="">Sélectionner d'abord une région</option>
+                            </select>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label for="codecommune" class="form-label">Commune</label>
+                            <select class="form-select" id="codecommune" name="codecommune">
+                                <option value="">Sélectionner d'abord un district</option>
+                            </select>
+                        </div>
+
+                        <div class="col-12">
+                            <label for="quartierpatient" class="form-label">Adresse</label>
+                            <textarea class="form-control" id="quartierpatient" name="quartierpatient" rows="3" placeholder="Quartier Patient..."></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="card-footer text-center">
+                    <button type="submit" form="patientForm" class="btn btn-primary btn-lg me-3">
+                        <i class="bi bi-check-circle me-2"></i>Créer le Patient
+                    </button>
+                    <a href="{% url 'liste_patients' %}" class="btn btn-secondary btn-lg">
+                        <i class="bi bi-x-circle me-2"></i>Annuler
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const regionSelect = document.getElementById('coderegion');
+    const districtSelect = document.getElementById('codedistrict');
+    const communeSelect = document.getElementById('codecommune');
+
+    // Fonction pour charger les districts
+    function loadDistricts(coderegion) {
+        if (!coderegion) {
+            districtSelect.innerHTML = '<option value="">Sélectionner d\'abord une région</option>';
+            communeSelect.innerHTML = '<option value="">Sélectionner d\'abord un district</option>';
+            return;
+        }
+
+        fetch(`{% url 'get_districts' %}?coderegion=${coderegion}`)
+            .then(response => response.json())
+            .then(data => {
+                districtSelect.innerHTML = '<option value="">Sélectionner un district</option>';
+                communeSelect.innerHTML = '<option value="">Sélectionner d\'abord un district</option>';
+
+                data.forEach(district => {
+                    const option = document.createElement('option');
+                    option.value = district.codedistrict;
+                    option.textContent = district.nomdistrict;
+                    districtSelect.appendChild(option);
+                });
+            })
+            .catch(error => {
+                console.error('Erreur lors du chargement des districts:', error);
+            });
+    }
+
+    // Fonction pour charger les communes
+    function loadCommunes(codedistrict) {
+        if (!codedistrict) {
+            communeSelect.innerHTML = '<option value="">Sélectionner d\'abord un district</option>';
+            return;
+        }
+
+        fetch(`{% url 'get_communes' %}?codedistrict=${codedistrict}`)
+            .then(response => response.json())
+            .then(data => {
+                communeSelect.innerHTML = '<option value="">Sélectionner une commune</option>';
+
+                data.forEach(commune => {
+                    const option = document.createElement('option');
+                    option.value = commune.codecommune;
+                    option.textContent = commune.nomcommune;
+                    communeSelect.appendChild(option);
+                });
+            })
+            .catch(error => {
+                console.error('Erreur lors du chargement des communes:', error);
+            });
+    }
+
+    // Écouteur pour le changement de région
+    regionSelect.addEventListener('change', function() {
+        loadDistricts(this.value);
+    });
+
+    // Écouteur pour le changement de district
+    districtSelect.addEventListener('change', function() {
+        loadCommunes(this.value);
+    });
+
+    // Écouteur pour le changement de catégorie
+    const categorieSelect = document.getElementById('categorie');
+    const nummatriculeSelect = document.getElementById('nummatricule');
+
+    categorieSelect.addEventListener('change', function() {
+        const selectedOption = categorieSelect.options[categorieSelect.selectedIndex];
+        const categorieText = selectedOption.textContent.toLowerCase();
+
+        if (categorieText.includes('personnel') || categorieText.includes('famille')) {
+            nummatriculeSelect.disabled = false;
+            nummatriculeSelect.required = true;
+        } else {
+            nummatriculeSelect.disabled = true;
+            nummatriculeSelect.required = false;
+            nummatriculeSelect.value = '';
+        }
+    });
+
+    // Validation du formulaire
+    document.getElementById('patientForm').addEventListener('submit', function(e) {
+        const requiredFields = ['nompatient', 'prenompatient', 'sexe_patient', 'coderegion', 'categorie'];
+        let isValid = true;
+
+        requiredFields.forEach(fieldId => {
+            const field = document.getElementById(fieldId);
+            if (!field.value.trim()) {
+                field.classList.add('is-invalid');
+                isValid = false;
+            } else {
+                field.classList.remove('is-invalid');
+            }
+        });
+
+        if (!isValid) {
+            e.preventDefault();
+            alert('Veuillez remplir tous les champs obligatoires.');
+        }
+    });
+});
+</script>
+
+<style>
+.is-invalid {
+    border-color: #dc3545;
+}
+</style>
+{% endblock %}

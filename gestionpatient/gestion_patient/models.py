@@ -163,23 +163,48 @@ class SanteCommunautaire(models.Model):
 # 4. TABLES DES TRANSACTIONS (DOSSIER, FACTURE, PAIEMENT)
 # ==============================================================================
 
+class NumerotationUserDossier(models.Model):
+    # Correspond à la table 'numerotation_user_dossier'
+    codeutilisateur = models.ForeignKey(
+        Utilisateur,
+        models.DO_NOTHING,
+        db_column='CodeUtilisateur',
+        primary_key=True
+    )
+    num_externe = models.IntegerField(db_column='Num_Externe', default=0)
+    num_interne = models.IntegerField(db_column='Num_Interne', default=0)
+    date_dossier = models.DateField(db_column='Date_dossier', blank=True, null=True)
+
+    class Meta:
+        managed = False
+        db_table = 'numerotation_user_dossier'
+
+
 class Dossier(models.Model):
     # Correspond à la table 'dossier'
-    
-    # ⚠️ Assurez-vous que cette ligne se trouve APRES la définition de TypeConsultation
-    idtype = models.ForeignKey(
-        TypeConsultation, 
-        models.DO_NOTHING, 
-        db_column='IdType', 
-        blank=True, 
-        null=True
-    ) 
 
+    # Clé primaire
     numdossier = models.CharField(db_column='NumDossier', primary_key=True, max_length=25)
+
+    # Relations
+    idpatient = models.ForeignKey('Patient', models.DO_NOTHING, db_column='Idpatient', blank=True, null=True)
+    idtype = models.ForeignKey(
+        TypeConsultation,
+        models.DO_NOTHING,
+        db_column='IdType',
+        blank=True,
+        null=True
+    )
+
+    # Champs de dates
     dateconsultation = models.DateField(db_column='dateconsultation', blank=True, null=True)
-    idpatient = models.IntegerField(db_column='Idpatient', blank=True, null=True)
-    # ... autres champs
-    
+    date_entree = models.DateField(db_column='Date_Entree', blank=True, null=True)
+    date_sortie = models.DateField(db_column='Date_Sortie', blank=True, null=True)
+
+    # Autres champs
+    numporte = models.CharField(db_column='numporte', max_length=25, blank=True, null=True)
+    clefact = models.IntegerField(db_column='CleFact', default=0)
+
     class Meta:
         db_table = 'dossier'
 
@@ -268,11 +293,30 @@ class CategoriePatient(models.Model):
 # 3. TABLE CENTRALE : PATIENT
 # ==============================================================================
 
+class Personnel(models.Model):
+    # Correspond à la table 'personnel'
+    nummle = models.CharField(db_column='numMle', primary_key=True, max_length=25)
+    nompersonnel = models.CharField(db_column='nom', max_length=255, blank=True, null=True)
+    prenompersonnel = models.CharField(db_column='prenom', max_length=255, blank=True, null=True)
+    date_naissance = models.DateField(db_column='Date_naissance', blank=True, null=True)
+    lieu_naissance = models.CharField(db_column='lieu_naissance', max_length=100, blank=True, null=True)
+    cin = models.CharField(db_column='CIN', max_length=15, blank=True, null=True)
+    date_cin = models.DateField(db_column='date_CIN', blank=True, null=True)
+    lieu_cin = models.CharField(db_column='Lieu_CIN', max_length=100, blank=True, null=True)
+    date_embauche = models.DateField(db_column='date_embauche', blank=True, null=True)
+    poste = models.CharField(db_column='Poste', max_length=255, blank=True, null=True)
+    adresse = models.CharField(db_column='Adresse', max_length=100, blank=True, null=True)
+    cat_prof = models.IntegerField(db_column='Cat_prof', blank=True, null=True)
+
+    class Meta:
+        db_table = 'personnel'
+        managed = False
+
 class Patient(models.Model):
     # Clé primaire : Idpatient (AUTO_INCREMENT)
     idpatient = models.AutoField(db_column='Idpatient', primary_key=True)
     numpatient = models.CharField(db_column='NumPatient', max_length=25)
-    nummatricule = models.CharField(db_column='NumMle', max_length=5, blank=True, null=True)
+    nummatricule = models.ForeignKey(Personnel, models.DO_NOTHING, db_column='NumMle', blank=True, null=True)
 
     nompatient = models.CharField(db_column='NomPatient', max_length=100, blank=True, null=True)
     prenompatient = models.CharField(db_column='PrenomPatient', max_length=100, blank=True, null=True)
@@ -293,6 +337,8 @@ class Patient(models.Model):
         null=True
     )
 
+    quartierpatient = models.CharField(db_column='QuartierPatient', max_length=100, blank=True, null=True)
+
     class Meta:
         db_table = 'patient'
         unique_together = (('idpatient', 'numpatient'),) # Rétablit la clé primaire composée
@@ -304,6 +350,14 @@ class Patient(models.Model):
 # ==============================================================================
 # 6. TYPES DE PRESTATIONS
 # ==============================================================================
+
+class Numerotation(models.Model):
+    typ_num = models.CharField(db_column='typ_num', max_length=10, primary_key=True)
+    numero = models.IntegerField(db_column='numero', default=0)
+
+    class Meta:
+        db_table = 'numerotation'
+        managed = False
 
 class TypePrestation(models.Model):
     code = models.CharField(max_length=10, unique=True, verbose_name="Code Prestation")
